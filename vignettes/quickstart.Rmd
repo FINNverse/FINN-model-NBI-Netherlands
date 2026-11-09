@@ -1,0 +1,111 @@
+---
+title: "Quickstart: simulate Dutch forests with FINNmodelNBINetherlands"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Quickstart}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+```
+
+`FINNmodelNBINetherlands` ships a fitted [FINN](https://github.com/FINNverse/FINN)
+forest model for the Netherlands: 19 tree species / species groups plus an
+"other" class, calibrated to the tree-by-tree remeasurement of the permanent
+plots of the Dutch national forest inventory (NBI; model card in the
+[FINN-zoo](https://finnverse.github.io/FINN-zoo/models.html)). The package
+downloads the released parameters once, rebuilds the model with the installed
+FINN (>= 0.2.0) and simulates forest dynamics for sites you describe by two
+WorldClim 2.1 climate normals.
+
+```{r install}
+remotes::install_github("FINNverse/FINN")
+remotes::install_github("FINNverse/FINN-model-NBI-Netherlands")
+library(FINNmodelNBINetherlands)
+library(FINN)
+library(data.table)
+torch::torch_set_num_threads(1L)   # one thread: reproducible, and the simulations below are small
+```
+
+Every `simulate_model()` call below passes `batchsize = 100L` (sites per
+simulation batch). The batch size only changes how the stochastic draws
+(recruit numbers, patch-level mortality) are consumed, so results with another
+batch size differ in the draws, not in the model; the same seed, thread count
+and batch size reproduce a run exactly. Use `FINN::FINN.seed()` before a run.
+
+## What the model needs
+
+- `env`: one row per site and year with `siteID`, `year` (1, 2, ...), `tavg_c`
+  (annual mean temperature, degC, WorldClim 2.1 bio1) and `prec_mm` (annual
+  precipitation, mm, bio12), in natural units (the model standardises
+  internally with the constants it learned). See `inst/model/covariates.csv`
+  for how to derive them for new sites. The calibration range is the Dutch
+  climate (roughly 9-11 degC, 700-950 mm); outside it the model extrapolates.
+- optionally an initial stand: a table of cohorts (`siteID`, `patchID`,
+  `species`, `dbh` in cm, `trees`) turned into a `CohortMat` with
+  `FINN::makeInitCohorts()`. The species index is `species_table()`; `trees`
+  counts stems on one patch of **0.1257 ha** (the 20 m NBI circle), the patch
+  size the model was fitted with. Without an initial stand the simulation
+  starts from bare ground.
+
+```{r species}
+model_info()          # release tag, parameter file, sha256, FINN commit, patch settings
+head(species_table()) # species index -> name, NBI code, Dutch name
+```
+
+## Bare-ground succession at two climates
+
+```{r bare}
+env <- CJ(siteID = 1:2, year = 1:300)
+env[, tavg_c  := c(9.5, 10.8)[siteID]]      # a cooler north-eastern and a warmer southern site
+env[, prec_mm := c(820, 760)[siteID]]
+
+FINN.seed(1)
+sim <- simulate_model(env, init_cohort = NULL, patches = 20L, batchsize = 100L)   # 20 patches of 0.1257 ha per site
+out <- as.data.table(sim$wide$site)
+out <- merge(out, species_table()[, c("species", "species_name")], by = "species")
+out[, ba_ha := ba / 0.1257]             # basal area per hectare
+stand <- out[, .(ba_ha = sum(ba_ha)), by = .(siteID, year)]
+plot(stand[siteID == 1, .(year, ba_ha)], type = "l", ylim = c(0, 60), ylab = "basal area (m2/ha)")
+lines(stand[siteID == 2, .(year, ba_ha)], col = "red")
+```
+
+## Simulating from a synthetic stand
+
+The stand below is an example, not an NBI plot (the inventory data are not
+redistributed with this package): a Scots pine stand with oak and birch
+understorey on the sandy soils of the Veluwe.
+
+```{r stand}
+init <- data.table(siteID = 1L, patchID = 1L,
+                   species = c(10L, 14L, 3L),      # Pinus sylvestris, Quercus robur/petraea, Betula
+                   dbh     = c(32, 14, 10),        # cm
+                   trees   = c(45, 30, 25))        # stems on the 0.1257 ha patch
+init_cohort <- makeInitCohorts(init, Nspecies = nrow(species_table()))
+env <- data.table(siteID = 1L, year = 1:50, tavg_c = 10.0, prec_mm = 830)
+FINN.seed(1)
+sim <- simulate_model(env, init_cohort = init_cohort, patches = 1L, batchsize = 100L)
+as.data.table(sim$wide$site)[year == 50 & trees > 0]
+```
+
+## Notes
+
+- The mortality process was fitted to total stem loss, natural death and
+  felling together (they cannot be separated tree by tree in the NBI and the
+  Dutch forest is managed throughout), so the simulated "mortality" is the
+  stem turnover of a managed forest, not natural mortality. Plots that lost
+  half or more of their basal area between the visits (clearcuts) were not used.
+- Outputs per patch: `ba` m2, `trees` stems, `dbh` cm (species mean), `growth`
+  relative dbh increment per year, `mort` annual loss probability, `reg` and
+  `r_mean_ha` recruits (per patch and per ha and year; recruits enter at 6.4 cm
+  dbh, the NBI tally threshold being 5 cm).
+- The weights are released as GitHub release assets of this repository: the
+  name-matched parameter dump `parameters.pt` (a named list of tensors, env
+  networks and env standardisation included) that `load_model()` downloads,
+  checks against the sha256 in `model_info()` and copies into a freshly built
+  model, and the whole fitted module `model.pt` for `torch::torch_load()`.
+  The calibration script asserts that the rebuilt model reproduces the fitted
+  one bit for bit. The fit used `weights = "auto"` (baseline-scaled losses, no
+  numeric weight vector, so `weight_scale` is moot).

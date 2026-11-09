@@ -1,0 +1,10 @@
+name,unit,source,derivation,in_model
+tavg_c,degC,WorldClim 2.1 bio1 (annual mean temperature; 1970-2000 normals; 30 arc-seconds),"terra::extract(rast('wc2.1_30s_bio_1.tif'), site coordinates in WGS84); natural units, the model z-scales internally with the constants in parameters.pt",yes
+prec_mm,mm per year,WorldClim 2.1 bio12 (annual precipitation; 1970-2000 normals; 30 arc-seconds),"terra::extract(rast('wc2.1_30s_bio_12.tif'), site coordinates in WGS84); natural units",yes
+temp_season,degC x 100 (sd of monthly means),WorldClim 2.1 bio4 (temperature seasonality),carried in the prepared env tables for the general zoo model; not a model input,no
+prec_season,percent (CV),WorldClim 2.1 bio15 (precipitation seasonality),carried in the prepared env tables; not a model input,no
+tmax_warm_c,degC,WorldClim 2.1 bio5 (max temperature of the warmest month),carried in the prepared env tables; not a model input,no
+tmin_cold_c,degC,WorldClim 2.1 bio6 (min temperature of the coldest month),carried in the prepared env tables; not a model input,no
+elev_m,m,WorldClim 2.1 elevation (30 arc-seconds),carried in the prepared env tables; not a model input,no
+x,degrees,longitude WGS84 of the centre of the plot's 1 km INSPIRE cell (EPSG:3035),carried for maps and blocking; not a model input,no
+y,degrees,latitude WGS84 of the centre of the plot's 1 km INSPIRE cell,carried for maps and blocking; not a model input,no

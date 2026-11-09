@@ -1,0 +1,21 @@
+species_name,species,nbi_code,dutch_name,stems_t0,sites_t0
+Acer,1,ED,Esdoorn,758,125
+Alnus glutinosa,2,ZE,Zwarte els,1051,148
+Betula,3,BE,Berk,6888,1160
+Corylus avellana,4,HZ,Hazelaar,284,38
+Fagus sylvatica,5,BU,Beuk,2349,355
+Fraxinus excelsior,6,ES,Es,1035,115
+Larix kaempferi,7,JL,Japanse lariks,1969,282
+Picea abies,8,FS,Fijnspar,1512,191
+Pinus nigra,9,CD+OD,Corsicaanse den / Oostenrijkse den,1728,147
+Pinus sylvestris,10,GD,Grove den,11180,1094
+Populus,11,PO,Populier,583,67
+Prunus serotina,12,AV,Amerikaanse vogelkers,666,167
+Pseudotsuga menziesii,13,DG,Douglas,2718,362
+Quercus robur/petraea,14,EI,Inlandse eik,8109,1220
+Quercus rubra,15,AE,Amerikaanse eik,2395,403
+Rhamnus frangula,16,VB,Vuilboom,421,147
+Robinia pseudoacacia,17,AC,Acacia,212,34
+Salix,18,WI,Wilg,327,49
+Sorbus aucuparia,19,LB,Lijsterbes,750,233
+other,20,MD+DK+IL+HB+VL+AG+LI+TK+SS+TS+VK+SA+UL+ZD+RP+IE+HU+BW+ZK+CH+WD+PC+GE+OS+JE+NE+AB+KN+SO+EL+SD+PK+TX+KM+TH,all other species and shrubs,2246,

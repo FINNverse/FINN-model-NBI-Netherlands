@@ -1,0 +1,9 @@
+*.pt
+.Rproj.user/
+.Rhistory
+.RData
+.DS_Store
+data/
+outputs/
+logs/
+calibration/validation/predictions*.csv

@@ -1,0 +1,22 @@
+{
+  "variants": {
+    "process": {
+      "tag": "v0.0.0.9000",
+      "file": "parameters.pt",
+      "url": "",
+      "sha256": "",
+      "model_file": "model.pt",
+      "model_url": "",
+      "model_sha256": "",
+      "finn_commit": "0848b60",
+      "patches": 1,
+      "patch_size": 0.125663706143592,
+      "data_version": "pairs-v1",
+      "train_set": "train",
+      "epochs": 500,
+      "weights": "auto",
+      "weight_scale": "auto",
+      "fitted": ""
+    }
+  }
+}
