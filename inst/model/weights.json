@@ -1,14 +1,16 @@
 {
   "variants": {
     "process": {
-      "tag": "v0.0.0.9000",
+      "tag": "v0.1.0",
       "file": "parameters.pt",
-      "url": "",
-      "sha256": "",
+      "url": "https://github.com/FINNverse/FINN-model-NBI-Netherlands/releases/download/v0.1.0/parameters.pt",
+      "sha256": "19d24a826394ff918f7d9cdfb11f79f2cb6b032df90466ef388df2abd3043a99",
       "model_file": "model.pt",
-      "model_url": "",
-      "model_sha256": "",
+      "model_url": "https://github.com/FINNverse/FINN-model-NBI-Netherlands/releases/download/v0.1.0/model.pt",
+      "model_sha256": "60290b1b772268c1d9d9d138889b7953e82a7a0c956e34b3b280bd260c2ce25c",
       "finn_commit": "0848b60",
+      "finn_version": "0.2.0",
+      "torch_version": "0.15.1",
       "patches": 1,
       "patch_size": 0.125663706143592,
       "data_version": "pairs-v1",
@@ -16,7 +18,7 @@
       "epochs": 500,
       "weights": "auto",
       "weight_scale": "auto",
-      "fitted": ""
+      "fitted": "2026-11-10"
     }
   }
 }

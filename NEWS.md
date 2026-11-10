@@ -11,6 +11,13 @@
 * `build_model()` rebuilds the model from the released named list of parameter
   tensors (incl. the env standardisation constants); `inst/model/species.csv`
   and `covariates.csv` describe the inputs.
-* No fitted release yet: the production fit is queued; `inst/model/weights.json`
-  is filled by `calibration/fit.R` (tag `v0.1.0` planned) and the holdout
-  metrics will be listed here with the release.
+* Production fit done 2026-11-10 (500 epochs, 1.45 h on one core); `inst/model/weights.json`
+  carries the SHA-256 of both release assets (`parameters.pt`
+  `19d24a82…3a99`, `model.pt` `60290b1b…ce25c`); tag `v0.1.0` planned.
+* Holdout (740 blocked sites, `calibration/report.md`): species-level basal
+  area R² 0.88, dbh R² 0.73, stems R² 0.61; stand basal area R² 0.50 (persistence
+  0.56), stand stems R² 0.14 (persistence 0.36, model +40 % stems); growth r 0.58;
+  stem-loss AUC 0.56; recruitment R² < 0 (over-predicted 2.3x, "other" class).
+  Bare-ground run converges at 120-130 m²/ha in the "other" class with the dominant
+  species absent. Fit for short projections from an observed stand only; not for
+  succession (see the model card's verdict).
