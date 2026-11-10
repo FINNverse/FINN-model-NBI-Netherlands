@@ -17,10 +17,13 @@
 ##        - `harvest` (0/1, recorded harvest activity at the second visit) as a
 ##          covariate of the MORTALITY process only: the target stays total stem
 ##          loss incl. felling, management enters as a covariate (audit 4, 20);
-##        - mortality species parameters bounded to [-3, 3] (v0.1 drifted to +-9);
-##        - recruitment dispersion theta frozen at 1 (v0.1 collapsed to 0.07);
-##        - cosine learning-rate decay (v0.1 never settled);
+##        - cosine learning-rate decay (v0.1 never settled; pilot P2);
 ##        - optimizer fallback to optim_adam where the torch build lacks ignite Adam.
+##        NOT taken, from the pilots (AUDIT_v02.md section 24): frozen theta / K init
+##        10 (P3: recruitment ratio 2.47), per-tree losses (P4: loss ratio 0.79,
+##        growth skill lost), removing FINN's mortality floor (P6: worse on every
+##        column), and the interim [-3, 3] mortality bounds (never piloted).
+##        Theta stays free and is checked in the parameter trajectory.
 ## WHY THIS SHAPE
 ##        - Mechanistic FINN processes with a small SELU network per process on
 ##          two climate normals (tavg_c, prec_mm): the network learns the
@@ -66,12 +69,12 @@ PARAMS <- list(
   patch_size_ha = pi * 20^2 / 1e4,   # 0.1257 ha: the 20 m NBI circle as one patch, as prepared
   n_patches     = 1L,                # one plot = one patch (taken from the init cohort)
   env_vars      = c("tavg_c", "prec_mm", "harvest"),   # WorldClim 2.1 bio1 (degC), bio12 (mm/yr), natural units (FINN z-scales); harvest 0/1 (mortality only)
-  mort_bounds   = c(-3, 3),          # natural-scale bounds of the three mortality species parameters (FINN default +-10; v0.1 drifted to +-9)
-  freeze_theta  = TRUE,              # recruitment dispersion fixed at createProcess's dispersion_parameter = 1 (v0.1: collapse to 0.07)
-  recruits_dbh  = 6.4,               # median dbh of the observed recruits; tally threshold 5 cm
+  mort_bounds   = c(-10, 10),        # FINN's default bounds of the three mortality species parameters (tighter bounds were not piloted)
+  freeze_theta  = FALSE,             # recruitment dispersion free: frozen at 1 it raised the recruitment ratio to 2.5 (pilot P3)
+  recruits_dbh  = 5.9,               # median dbh of the pairs-v2 recruits (back-modelled start dbh < 5 cm); tally threshold 5 cm
   hidden        = c(20L, 20L),       # env network per process (SELU), as the other zoo fits
   dropout       = 0.1,
-  reg_K_init    = 50,                # Beverton-Holt cap init, stems/ha/yr (observed recruitment ~20/ha/yr mean, ~9 median at the 5 cm threshold; the other zoo fits' init)
+  reg_K_init    = 50,                # Beverton-Holt cap init, stems/ha/yr (observed S recruitment ~9/ha/yr; K init 10 with frozen theta hurt in pilot P3; 50 as in P1/P2/P5/P8)
   reg_floor     = 1e-3,              # minimum recruitment, stems/ha/yr: lets a species arrive where it is absent
   epochs        = 600L,              # v0.1 ran 500 at 10.4 s/epoch (1.45 h); cosine decay needs the whole run, 600 x 11 batches = 6,600 Adam steps, ~1.8 h on one laptop core
   batchsize     = 150L,              # ~11 batches per epoch over 1,524 sites; every interval length (4-12 yr) is in nearly every batch (per-site windows tolerate a miss)

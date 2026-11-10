@@ -266,8 +266,69 @@ option (a) at x = 2 % is used.
 | P7 | pairs-v2 | P2 + P3 + P5 together (presumed production shape) | - |
 | P6 | pairs-v2 | P7 + `mortality_floor = 1e-6`, `mortality_draw = "poisson"` (branch build) | 20b |
 
-P0 result (pairs-v1 holdout, 740 sites): species-level BA R2 0.86, stand BA R2 0.44 vs
-persistence 0.56, stand stems R2 0.51 vs 0.36, dBA R2 -0.36, dN R2 0.22, stem surplus
-+64/ha, growth r 0.53, loss AUC 0.565, loss ratio 1.39, recruitment ratio 2.21, bare ground
-38.5 m2/ha after 300 yr (Fagus 57 %). Rows P1-P7 and the v0.2 decision follow in section 24
-when the pilots have run (laptop budget permitting, or the cluster via calibration/v02/CLUSTER.md).
+## 24. Pilot results (laptop, 2026-11-10 06:28-08:43 UTC, one thread, ~11 min each; full tables
+## calibration/v02/pilot_table.csv and pilot_strata.csv)
+Holdout = 740 sites of pairs-v1 (P0) or 583 sites of pairs-v2 (P1-P8). Persistence = the
+first-visit stand as the forecast (stand BA R2 0.564 on pairs-v1, 0.619 on pairs-v2; stems
+0.36 / 0.43). "ratio" = predicted / observed sum.
+
+| pilot | change | BA sp R2 | stand BA R2 | stand stems R2 | dBA R2 | dN R2 | stems bias /ha | growth r | loss AUC | loss ratio | recruit ratio | eq BA m2/ha (top species, share) | theta min |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| P0 | v0.1 on pairs-v1 | 0.861 | 0.440 | 0.51 | -0.36 | 0.22 | +64 | 0.53 | 0.565 | 1.39 | 2.21 | 38 (Fagus 0.57) | 0.17 |
+| P1 | baseline on pairs-v2 | 0.878 | 0.513 | 0.62 | -0.32 | 0.29 | +43 | 0.62 | 0.555 | 0.94 | 1.44 | 39 (Acer 0.37) | 0.17 |
+| P2 | + cosine lr | 0.887 | 0.542 | 0.67 | -0.24 | 0.37 | +18 | 0.63 | 0.562 | 1.10 | 1.38 | 39 (Acer 0.57) | 0.24 |
+| P3 | + theta frozen, K init 10 | 0.873 | 0.480 | 0.56 | -0.41 | 0.17 | +121 | 0.61 | 0.563 | 0.87 | 2.47 | 40 (Fagus 0.49) | 1.00 |
+| P4 | + per-tree losses | 0.894 | 0.563 | 0.62 | -0.19 | 0.28 | +97 | 0.54 | 0.590 | 0.79 | 1.83 | 44 (Fagus 0.26) | 0.17 |
+| P5 | + harvest in mortality | 0.896 | 0.574 | 0.68 | -0.16 | 0.38 | +61 | 0.63 | 0.635 | 0.91 | 1.48 | 54 (Acer 0.51) | 0.16 |
+| P7 | P2 + P3 + P5 | 0.899 | 0.600 | 0.67 | -0.09 | 0.37 | +53 | 0.54 | 0.653 | 1.18 | 2.27 | 42 (Acer 0.38) | 1.00 |
+| P6 | P7 + no mortality floor | 0.879 | 0.512 | 0.58 | -0.33 | 0.20 | +133 | 0.61 | 0.627 | 1.09 | 4.40 | 39 (Pseudotsuga 0.42) | 1.00 |
+| **P8** | **P2 + P5 (theta free) = v0.2 shape** | **0.897** | **0.591** | **0.67** | **-0.11** | **0.38** | **+43** | **0.64** | **0.642** | **1.12** | **1.77** | **47 (Acer 0.53)** | **0.24** |
+
+P8 strata: < 1 % 0.64 / 0.64 (stems +49), 1-5 % 0.26 / 0.44 (+7), > 5 % 0.48 / 0.58 (+75).
+P8 keeps P5's AUC gain (0.642) and P2's growth skill (r 0.64), reaches persistence in the
+< 1 % stratum, and sits between P2 and P5 on recruitment (1.77; the two changes interact
+there). It is the production shape of calibration/v02/fit.R.
+
+Stratified by the end-census out-of-S share (stand BA R2, model / persistence; stems bias /ha):
+P1 < 1 % 0.53 / 0.64 (+57), 1-5 % 0.37 / 0.44 (-8), > 5 % 0.48 / 0.58 (+24); P5 0.60 / 0.64,
+0.37 / 0.44, 0.52 / 0.58; P7 0.65 / 0.64, 0.30 / 0.44, 0.49 / 0.58. In every pilot the stand
+BA skill falls from the < 1 % to the 1-5 % stratum (by 0.15-0.35 R2), as does persistence
+(0.64 -> 0.44): sites whose out-of-S share grew over the interval changed more. The model
+beats persistence only in the < 1 % stratum and only in P7. The card will say so.
+
+Reading:
+1. The data rule alone (P1 vs P0) removes most of the recruitment surplus (ratio 2.21 -> 1.44),
+   lifts stand stems above persistence (0.62 vs 0.43) and the species-level states, and keeps
+   the stem-loss AUC where it was (0.56): the "other" class was the recruitment problem, not
+   the mortality problem.
+2. Cosine decay (P2) improves every column a little and halves the stem surplus (+43 -> +18).
+3. The harvest covariate (P5) is the one change that moves the stem-loss AUC (0.555 -> 0.635)
+   and the stand BA (0.513 -> 0.574) at once; its loss ratio 0.91.
+4. Freezing theta at 1 with K init 10 (P3) HURTS: recruitment ratio 2.47, stems +121/ha.
+   With per-hectare targets from 5-20 m circles the true recruitment dispersion is far larger
+   than theta = 1 (the free theta settles at 0.16-0.24 here and did not collapse further in
+   400 epochs), so the frozen value under-weights the many zero counts and the fit raises the
+   mean. The BWI fix (freeze at the ML theta >= 0.01) is not the same thing; theta stays free
+   in v0.2 and is checked in the production fit's parameter trajectory.
+5. Per-tree losses (P4) give the best single-change stand BA (0.563) and a better AUC (0.59)
+   but under-predict stem loss (ratio 0.79), lose growth skill (r 0.54 vs 0.62) and raise the
+   stem surplus (+97): the per-tree growth/mortality terms outweigh the state terms under
+   "auto" weights. Not taken into v0.2; a candidate for a weighted rerun later.
+6. The floor arm (P6 vs P7) is worse on every column (recruitment ratio 4.4, stems +133):
+   without the 1 %/yr floor the smallest cohorts survive, stems and recruits pile up, and
+   stand BA falls. For NBI stem loss incl. felling (5-6 %/yr) the floor does not bind in
+   calibration; v0.2 stays on the standard FINN library. The free-run equilibrium hardly
+   changes (39 vs 42 m2/ha).
+7. P7 (cosine + theta/cap + harvest) has the best stand BA (0.600, beating persistence in the
+   < 1 % stratum) and AUC (0.653) but inherits P3's recruitment (2.27) and loses growth skill;
+   the production shape is therefore P2 + P5 without P3, confirmed by P8 (row above).
+8. Free runs: every pilot reaches 38-54 m2/ha after 300 years at the median climate (the
+   Dutch mean is ~25-30), dominated by Acer (37-57 %) or Fagus: the shade-tolerant classes
+   over-recruit under closed canopies (audit 8), now for a named species instead of "other".
+   A limitation for the card; the stand-level validation does not see it (intervals of 4-12 yr).
+
+**v0.2 decision:** pairs-v2 (S of 14, x = 2 %), cosine lr, `harvest` in the mortality formula,
+theta free, K init 50, FINN's default mortality bounds and floor (the [-3, 3] bounds of the
+interim plan were not piloted and are dropped), 600 epochs on 1,179 training sites
+(`calibration/v02/fit.R`). Expected from the pilots: stand BA R2 ~0.58-0.60 (persistence
+0.62), stem-loss AUC ~0.63, recruitment ratio ~1.4, stems +20-60/ha.

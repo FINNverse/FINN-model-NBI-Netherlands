@@ -118,7 +118,7 @@ predict_set <- function(d) {
   I <- d$init[, .(ba_0 = sum(dbh2ba(dbh) * trees), trees_0 = sum(trees), dbh_0 = weighted.mean(dbh, trees)), by = .(siteID, species)]
   M <- merge(M, I, by = c("siteID", "species"), all.x = TRUE)
   M[is.na(ba_0), `:=`(ba_0 = 0, trees_0 = 0)]
-  M <- merge(M, d$sites[, .(siteID, x, y, t0, t1)], by = "siteID")
+  M <- merge(M, d$sites[, .(siteID, x, y, t0, t1, oos_ba_share_t1)], by = "siteID")
   M
 }
 M <- rbind(cbind(set = "test", predict_set(test)), cbind(set = "holdout", predict_set(hold)))
@@ -140,7 +140,14 @@ metrics <- rbindlist(lapply(levels(M$set), function(s) rbindlist(lapply(vars, fu
 }))))
 ## stand totals over species (basal area, stems, recruitment)
 TOT <- M[, .(ba = sum(ba), ba_m = sum(ba_m), ba_0 = sum(ba_0), trees = sum(trees), trees_m = sum(trees_m), trees_0 = sum(trees_0),
-             reg = sum(reg), reg_m = sum(reg_m), x = x[1], y = y[1], period_length = period_length[1]), by = .(set, siteID)]
+             reg = sum(reg), reg_m = sum(reg_m), x = x[1], y = y[1], period_length = period_length[1], oos = oos_ba_share_t1[1]), by = .(set, siteID)]
+## the agreed rule's stratification: end-census share of species outside S (< 1 %, 1-5 %, > 5 %); where the error grows, the model stops applying
+TOT[, oos_bin := cut(oos, c(-Inf, 0.01, 0.05, Inf), labels = c("< 1 %", "1-5 %", "> 5 %"))]
+strata <- TOT[, .(n_sites = .N, ba_stand_r2 = metric(ba, ba_m)$r2, ba_persistence_r2 = metric(ba, ba_0)$r2,
+                  ba_rmse_ha = sqrt(mean((ba_m - ba)^2)) / PS, ba_bias_ha = mean(ba_m - ba) / PS,
+                  trees_stand_r2 = metric(trees, trees_m)$r2, trees_bias_ha = mean(trees_m - trees) / PS,
+                  dba_r2 = metric(ba - ba_0, ba_m - ba_0)$r2, reg_ratio = sum(reg_m) / max(sum(reg), 1e-9)), by = .(set, oos_bin)][order(set, oos_bin)]
+fwrite(strata, file.path(VAL, "metrics_strata.csv")); print(strata, digits = 3)
 metrics <- rbind(metrics, rbindlist(lapply(levels(M$set), function(s) rbind(
   cbind(set = s, variable = "basal area (m2 per patch)", level = "stand total", metric(TOT[set == s]$ba, TOT[set == s]$ba_m)),
   cbind(set = s, variable = "trees (per patch)",         level = "stand total", metric(TOT[set == s]$trees, TOT[set == s]$trees_m)),
@@ -268,6 +275,8 @@ report <- c(
   "A negative R2 means worse than predicting the mean. The persistence rows predict the second-visit state by the first-visit state (model-free reference).",
   "\"Stem loss\" is the fitted mortality target: natural death AND felling (see fit.R).", "",
   "## Stem-loss AUC (interval loss probability against the tallied fates; each site x species row weighted by its trees at risk)", "", md_table(auc_tab), "",
+  "## Stratified by the end-census share of species outside S (the agreed rare-species rule: where the error grows with the share, the model stops applying)", "",
+  md_table(strata), "",
   "## Per species, holdout", "", md_table(hold_sp[, .(species_name, sites_present, ba_r2, trees_r2, growth_r, growth_bias, mort_auc, mort_obs, mort_pred, reg_r, reg_obs, reg_pred)]), "",
   "## Bare-ground equilibrium (stand totals, last 100 vs previous 100 years)", "", md_table(eq_tab), "",
   "## Figures", "",
@@ -280,7 +289,7 @@ report <- c(
   "| preparation | calibration/v02/04_prepare_pairs_v2.R | raw CSV tables, WorldClim 2.1 30 s | prepared/pairs-v2/{national,train,holdout_blocked,pilot}, v02/PREPARATION.md, v02/expected_preparation_v2.csv |",
   "| audit + pilots | calibration/AUDIT_v02.md, calibration/v02/pilot_*.R | pairs-v1 / pairs-v2 pilot sets, v0.1 fit | v02/pilot_table.csv |",
   "| fit | calibration/v02/fit.R | pairs-v2/train | fits/pairs-v2-process/{model.pt, parameters.pt}, v02/loss_history.csv, v02/fit_summary.md, inst/model/weights.json |",
-  "| validation | calibration/v02/validation.R | model.pt, train, holdout_blocked | v02/report.md, v02/validation/*.csv, v02/figures/*.png |", "",
+  "| validation | calibration/v02/validation.R | model.pt, train, holdout_blocked | v02/report.md, v02/validation/*.csv (incl. metrics_strata.csv), v02/figures/*.png |", "",
   "## Fit summary (from fit.R)", "", fit_summary)
 writeLines(report, file.path(CAL_DIR, "report.md"))
 
