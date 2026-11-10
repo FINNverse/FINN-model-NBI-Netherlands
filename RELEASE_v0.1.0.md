@@ -5,8 +5,12 @@ after the go. All commands from the repository root.
 
 ## Commit to tag
 
-`58522b8` on `main` ("FINNmodelNBINetherlands 0.1.0: version, FINN pinned at
-0848b60, ..."). It is the v0.1 package (`R/`, `inst/model/`, `DESCRIPTION`
+`039c338` on `main` ("WorldClim licence stated correctly ..."), which follows the
+release commit `58522b8` ("FINNmodelNBINetherlands 0.1.0: version, FINN pinned
+at 0848b60, ...") and corrects the WorldClim licence wording in README, NEWS,
+PROVENANCE (and the script writing it) and the release notes (WorldClim is not
+CC BY-SA 4.0: free for academic and other non-commercial use, rasters not
+redistributed). It is the v0.1 package (`R/`, `inst/model/`, `DESCRIPTION`
 0.1.0, vignette); `calibration/` (incl. the v0.2 work in `calibration/v02/`),
 `hpc/` and this file are excluded from the build by `.Rbuildignore`.
 `R/definition.R` was rewritten on `main` for v0.2 as a self-describing
@@ -42,7 +46,7 @@ file whose sha256 differs.
 shasum -a 256 ../../FINN-zoo-data/nbi/fits/pairs-v1-process/parameters.pt ../../FINN-zoo-data/nbi/fits/pairs-v1-process/model.pt
 
 # 1. tag the release commit
-git tag -a v0.1.0 58522b8 -m "FINNmodelNBINetherlands 0.1.0: first fitted release (variant process), FINN 0.2.0 commit 0848b60"
+git tag -a v0.1.0 039c338 -m "FINNmodelNBINetherlands 0.1.0: first fitted release (variant process), FINN 0.2.0 commit 0848b60"
 
 # 2. push main and the tag
 git push origin main
