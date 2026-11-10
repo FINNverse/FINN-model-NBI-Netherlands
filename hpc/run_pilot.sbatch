@@ -24,7 +24,10 @@ set -euo pipefail
 module purge 2>/dev/null || true
 module load math/R/4.4.2 2>/dev/null || true
 export R_LIBS_USER="${R_LIBS_USER:-$HOME/R/site-library}"
-export LD_LIBRARY_PATH="$R_LIBS_USER/torch/lib:${LD_LIBRARY_PATH:-}"
+# libtorch of the torch that the scripts load (lib-finn-0848b60 is first on .libPaths());
+# the libtorch of an older torch in $R_LIBS_USER fails with "Lantern is not loaded"
+# (the France finding of 2026-11-10).
+export LD_LIBRARY_PATH="$HOME/R/lib-finn-0848b60/torch/lib:${LD_LIBRARY_PATH:-}"
 export TORCH_INSTALL=0
 export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1
 cd "${SLURM_SUBMIT_DIR:-$HOME/FINN-zoo/FINN-zoo-models/FINN-model-NBI-Netherlands}"
