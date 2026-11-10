@@ -32,9 +32,18 @@
 #' @param variant Name of the model variant (see [model_info()]).
 #' @param parameters Named list of parameter tensors, as saved by the
 #'   calibration script (`parameters.pt`).
+#' @param version Structure of the parameter file: `"v0.1"` (the structure
+#'   written out below, the released v0.1.0 and v0.2.0 files), `"v0.2-recipe"`
+#'   (the zoo v0.2 recipe, [build_model_v02()]) or `"auto"` (the default: the
+#'   recipe when the file's `settings$recipe` tag says so, v0.1 otherwise).
 #' @return A fitted `FINN` model.
 #' @keywords internal
-build_model = function(variant = "process", parameters) {
+build_model = function(variant = "process", parameters, version = c("auto", "v0.1", "v0.2-recipe")) {
+  version = match.arg(version)
+  ## the structure switch: a zoo v0.2 recipe file describes itself through its
+  ## settings$recipe tag (R/recipe_v02.R); everything else is the v0.1 structure below
+  if (version == "auto") version = if (is_recipe_v02(parameters)) "v0.2-recipe" else "v0.1"
+  if (version == "v0.2-recipe") return(build_model_v02(parameters, variant = if (missing(variant)) NULL else variant))
   if (!identical(variant, "process"))
     stop("Unknown variant '", variant, "'; this package has the variant 'process'.", call. = FALSE)
   scalar = function(nm, default) if (is.null(parameters[[nm]])) default else as.numeric(parameters[[nm]])

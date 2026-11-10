@@ -1,0 +1,17 @@
+# The zoo v0.2 recipe structure of this package (FINN-zoo-data/RECIPE_v02.md):
+# what a released v0.2 parameters.pt does not carry, read by R/recipe_v02.R.
+# Entries that the parameter file also carries (settings$linear_var, sen_max,
+# growth_scale, regeneration_sampler) are fallbacks; the file wins.
+structure: v0.2-recipe
+recipe: calibration/v02/recipe (fit_stageA.R, fit_stageB.R; management variant, pairs-v2-recipe)
+env_vars: [tavg_c, prec_mm, harvest]   # the env columns of the saved formula, in order (checked)
+linear_var: harvest               # the harvest flag: linear per-species term outside the climate network (env_dnn_linmgmt)
+hidden: [20, 20]                  # climate network of growth and mortality (SELU; checked against the tensor shapes)
+dropout: 0.1                      # training dropout; the released (frozen) networks run with 0
+light_mask: true                  # competition, as fitted
+n_quantiles: 10
+mortality_draw: gamma             # FINN's default death draw
+regeneration_sampler: gaussian    # FINN's default recruit draw
+regeneration: saturation          # FINN::regeneration_saturation with the frozen dispersion and the fitted cap reg_logK
+sen_max: 5                        # U-shape cap of mortality_ushape
+growth_scale: 0.01                # growth enters the mortality logit as growth / 0.01
