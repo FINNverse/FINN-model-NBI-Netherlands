@@ -18,6 +18,8 @@
       "epochs": 500,
       "weights": "auto",
       "weight_scale": "auto",
+      "threads": 1,
+      "sim_batchsize": 100,
       "fitted": "2026-11-10"
     }
   }

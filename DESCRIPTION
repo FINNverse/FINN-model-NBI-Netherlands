@@ -1,7 +1,7 @@
 Package: FINNmodelNBINetherlands
 Type: Package
 Title: A Fitted FINN Forest Model for Dutch Forests (NBI)
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R:
     c(person(given = "Yannek", family = "Käber", role = c("aut", "cre"),
              email = "y.kaeber@posteo.de", comment = c(ORCID = "0000-0002-7041-9849")),
@@ -18,5 +18,5 @@ URL: https://github.com/FINNverse/FINN-model-NBI-Netherlands, https://finnverse.
 Depends: R (>= 4.1)
 Imports: FINN (>= 0.2.0), torch, jsonlite, digest, tools, utils
 Suggests: knitr, rmarkdown, data.table
-Remotes: FINNverse/FINN
+Remotes: FINNverse/FINN@0848b60
 VignetteBuilder: knitr

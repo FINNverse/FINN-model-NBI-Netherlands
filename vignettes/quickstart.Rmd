@@ -2,7 +2,7 @@
 title: "Quickstart: simulate Dutch forests with FINNmodelNBINetherlands"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Quickstart}
+  %\VignetteIndexEntry{Quickstart: simulate Dutch forests with FINNmodelNBINetherlands}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -20,20 +20,26 @@ downloads the released parameters once, rebuilds the model with the installed
 FINN (>= 0.2.0) and simulates forest dynamics for sites you describe by two
 WorldClim 2.1 climate normals.
 
+The chunks are not evaluated when the package is built: loading the model
+downloads the released parameters once and needs a torch backend. Run them
+after installing the release:
+
 ```{r install}
-remotes::install_github("FINNverse/FINN")
-remotes::install_github("FINNverse/FINN-model-NBI-Netherlands")
+remotes::install_github("FINNverse/FINN@0848b60")                   # FINN 0.2.0, the version the model was fitted with
+remotes::install_github("FINNverse/FINN-model-NBI-Netherlands@v0.1.0")
 library(FINNmodelNBINetherlands)
 library(FINN)
 library(data.table)
-torch::torch_set_num_threads(1L)   # one thread: reproducible, and the simulations below are small
+torch::torch_set_num_threads(1L)   # pinned: one thread, the setting the model was fitted and validated with
 ```
 
-Every `simulate_model()` call below passes `batchsize = 100L` (sites per
-simulation batch). The batch size only changes how the stochastic draws
-(recruit numbers, patch-level mortality) are consumed, so results with another
-batch size differ in the draws, not in the model; the same seed, thread count
-and batch size reproduce a run exactly. Use `FINN::FINN.seed()` before a run.
+Threads and batch size are pinned: one torch thread, and every
+`simulate_model()` call below passes `batchsize = 100L` (sites per simulation
+batch, the value pinned in `model_info()`). A different batchsize changes the
+random draws but not the model (the batch size only changes how the stochastic
+draws of recruit numbers and patch-level mortality are consumed); the same
+seed, thread count and batch size reproduce a run exactly. Use
+`FINN::FINN.seed()` before a run.
 
 ## What the model needs
 
@@ -101,6 +107,11 @@ as.data.table(sim$wide$site)[year == 50 & trees > 0]
   relative dbh increment per year, `mort` annual loss probability, `reg` and
   `r_mean_ha` recruits (per patch and per ha and year; recruits enter at 6.4 cm
   dbh, the NBI tally threshold being 5 cm).
+- FINN's simulated mortality has a floor of 0.01 per annual step
+  (FINNverse/FINN#51); species with a fitted loss rate below 1 % per year are
+  simulated at the floor, which the fit did not see. With the stem-loss target
+  of this model (turnover incl. felling, 10 % per year on average) the floor
+  rarely binds.
 - The weights are released as GitHub release assets of this repository: the
   name-matched parameter dump `parameters.pt` (a named list of tensors, env
   networks and env standardisation included) that `load_model()` downloads,
