@@ -44,4 +44,7 @@ of the Dutch Ministry of Agriculture, Fisheries, Food Security and Nature, LVVN,
 and citation of Schelhaas et al. 2022, *Zevende Nederlandse Bosinventarisatie:
 methoden en resultaten*, WOt-rapport 142). This repository does not redistribute
 the data; `calibration/` downloads them from the source and the fitted
-parameters are a derived model. WorldClim 2.1: CC BY-SA 4.0 (Fick & Hijmans 2017).
+parameters are a derived model. Climate normals: WorldClim 2.1 (Fick & Hijmans
+2017, doi:10.1002/joc.5086), free for academic and other non-commercial use; the
+rasters are not redistributed, only values extracted at the plot locations are
+included.

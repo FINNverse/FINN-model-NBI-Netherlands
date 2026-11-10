@@ -23,7 +23,7 @@ Citation: Schelhaas, M.J., Teeuwen, S., Oldenburger, J., Beerkens, G., Velema, G
 ## Climate: WorldClim 2.1 (03_prepare_pairs_v1.R)
 
 Source: https://www.worldclim.org/data/worldclim21.html (Fick & Hijmans 2017, doi:10.1002/joc.5086), 1970-2000 normals,
-30 arc-seconds, files wc2.1_30s_bio.zip and wc2.1_30s_elev.zip, licence CC BY-SA 4.0; values extracted at the centres of
+30 arc-seconds, files wc2.1_30s_bio.zip and wc2.1_30s_elev.zip; licence: WorldClim's own terms, free for academic and other non-commercial use, no redistribution without permission (the rasters are not redistributed, only values extracted at the plot locations are included); values extracted at the centres of
 the plots' 1 km INSPIRE cells (EPSG:3035) on the date of PREPARATION.md.
 
 | variable | file | SHA-256 | size (bytes) |
