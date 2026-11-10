@@ -5,16 +5,16 @@ A fitted [FINN](https://github.com/FINNverse/FINN) forest model calibrated to th
 packaged as a versioned simulation tool (R package `FINNmodelNBINetherlands`). The model card is in the
 [FINN-zoo](https://finnverse.github.io/FINN-zoo/models.html).
 
-**Current release: v0.1.0** (see NEWS.md). The fitted parameters are release assets of this repository;
-`load_model()` downloads them once and checks their sha256.
+**Current release: v0.2.0** (see NEWS.md; v0.1.0 remains available). The fitted parameters are release
+assets of this repository; `load_model()` downloads them once and checks their sha256.
 
 ```r
 remotes::install_github("FINNverse/FINN@0848b60")                   # FINN 0.2.0, the version the model was fitted with
-remotes::install_github("FINNverse/FINN-model-NBI-Netherlands@v0.1.0")
+remotes::install_github("FINNverse/FINN-model-NBI-Netherlands@v0.2.0")
 library(FINNmodelNBINetherlands)
 torch::torch_set_num_threads(1L)   # pinned: the fit and the validation ran single-threaded
 m = load_model()          # downloads the released parameters once, checks sha256, rebuilds with the installed FINN
-species_table()           # 19 species / species groups + "other": index, name, NBI code, Dutch name
+species_table()           # 14 taxa (species, or the genus where the NBI records only the genus): index, name, NBI code, Dutch name
 model_info()              # release tag, files, sha256, FINN commit, patch settings, pinned threads and batchsize
 vignette("quickstart", package = "FINNmodelNBINetherlands")
 ```
@@ -23,13 +23,18 @@ Simulations are run with one torch thread and an explicit `batchsize` (100 sites
 the value pinned in `model_info()`; `simulate_model()` uses it by default). A different batchsize changes the
 random draws but not the model.
 
-What the model is: a FINN process model (growth, mortality, saturating regeneration, competition) for 19 Dutch
-tree species / species groups + "other", annual timestep, two WorldClim 2.1 covariates (`tavg_c`, `prec_mm`; see
-`inst/model/covariates.csv` for how to derive them), calibrated on 1,531 remeasurement pairs of permanent NBI
-plots (MFV 2001-2005 -> NBI-6 2012-2013 and NBI-6 -> NBI-7 2017-2021, tree by tree, 4-12 years apart) and
-validated on 740 pairs in spatially blocked holdout squares. One patch = 0.1257 ha (the 20 m NBI circle).
-The mortality process is fitted to total stem loss, natural death and felling together, so it describes the
-stem turnover of the managed Dutch forest rather than natural mortality alone.
+What the model is: a FINN process model (growth, mortality, saturating regeneration, competition) for 14 Dutch
+tree taxa (Scots pine, pedunculate/sessile oak, birch, Douglas fir, beech, black pine, Japanese larch, red oak,
+Norway spruce, ash, black alder, poplar, maple, willow; no "other" class, no shrubs), annual timestep, two
+WorldClim 2.1 covariates (`tavg_c`, `prec_mm`) and a `harvest` dial (0/1) in the mortality process (see
+`inst/model/covariates.csv`). Calibrated on 1,179 remeasurement pairs of permanent NBI plots (MFV 2001-2005 ->
+NBI-6 2012-2013 and NBI-6 -> NBI-7 2017-2021, tree by tree, 4-12 years apart) on stands where the 14 taxa hold
+more than 98 % of the basal area at the start of the interval (77.6 % of the inventory's plot pairs), validated
+on 583 such pairs in spatially blocked holdout squares. One patch = 0.1257 ha (the 20 m NBI circle). The
+mortality process is fitted to total stem loss, natural death and felling together, so it describes the stem
+turnover of the managed Dutch forest rather than natural mortality alone; the harvest dial selects the regime.
+Holdout (v0.2.0): stand basal area R2 0.64 (persistence 0.62), stems R2 0.70 (0.43), stem-loss AUC 0.66; the
+free run is not a succession model for the Dutch pine-oak-birch forest (NEWS.md).
 
 This repository is a tool, not the code of a manuscript: it is versioned for
 users (see NEWS.md) and may differ from the models in our papers. The

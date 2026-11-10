@@ -1,7 +1,7 @@
 Package: FINNmodelNBINetherlands
 Type: Package
 Title: A Fitted FINN Forest Model for Dutch Forests (NBI)
-Version: 0.1.0
+Version: 0.2.0
 Authors@R:
     c(person(given = "Yannek", family = "Käber", role = c("aut", "cre"),
              email = "y.kaeber@posteo.de", comment = c(ORCID = "0000-0002-7041-9849")),

@@ -1,6 +1,7 @@
 name,unit,source,derivation,in_model
-tavg_c,degC,WorldClim 2.1 bio1 (annual mean temperature; 1970-2000 normals; 30 arc-seconds),"terra::extract(rast('wc2.1_30s_bio_1.tif'), site coordinates in WGS84); natural units, the model z-scales internally with the constants in parameters.pt",yes
-prec_mm,mm per year,WorldClim 2.1 bio12 (annual precipitation; 1970-2000 normals; 30 arc-seconds),"terra::extract(rast('wc2.1_30s_bio_12.tif'), site coordinates in WGS84); natural units",yes
+tavg_c,degC,WorldClim 2.1 bio1 (annual mean temperature; 1970-2000 normals; 30 arc-seconds),"terra::extract(rast('wc2.1_30s_bio_1.tif'), site coordinates in WGS84); natural units, the model z-scales internally with the constants in parameters.pt",yes (growth, mortality, regeneration)
+prec_mm,mm per year,WorldClim 2.1 bio12 (annual precipitation; 1970-2000 normals; 30 arc-seconds),"terra::extract(rast('wc2.1_30s_bio_12.tif'), site coordinates in WGS84); natural units",yes (growth, mortality, regeneration)
+harvest,0/1,NBI plot record at the second visit (NBI-7 oogstactiviteit = traces of harvest present; NBI-6 soort kap = clearcut or single-tree felling),"a management dial, constant over the years of a site: 1 = the stand is harvested as the inventory's harvested plots were over an interval (felled share of trees 22 %), 0 = no harvest activity recorded (felled share < 1.5 %); it is realised harvest of the same period in the calibration, so it describes a management regime, it does not forecast one",yes (mortality only)
 temp_season,degC x 100 (sd of monthly means),WorldClim 2.1 bio4 (temperature seasonality),carried in the prepared env tables for the general zoo model; not a model input,no
 prec_season,percent (CV),WorldClim 2.1 bio15 (precipitation seasonality),carried in the prepared env tables; not a model input,no
 tmax_warm_c,degC,WorldClim 2.1 bio5 (max temperature of the warmest month),carried in the prepared env tables; not a model input,no
