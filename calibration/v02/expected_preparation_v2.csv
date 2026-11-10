@@ -1,120 +1,119 @@
 set,species,species_name,quantity,value
-national,,,sites,2262
-train,,,sites,1524
-holdout_blocked,,,sites,738
+national,,,sites,1762
+train,,,sites,1179
+holdout_blocked,,,sites,583
 pilot,,,sites,300
-national,,,obs_rows,33930
-train,,,obs_rows,22860
-holdout_blocked,,,obs_rows,11070
-pilot,,,obs_rows,4500
-national,,,cohorts,44885
-train,,,cohorts,30037
-holdout_blocked,,,cohorts,14848
-pilot,,,cohorts,6066
-national,,,virtual_trees_t0,219015
-train,,,virtual_trees_t0,143949
-holdout_blocked,,,virtual_trees_t0,75066
-pilot,,,virtual_trees_t0,29700
-national,,,ba_ha_t1_mean,26.82
-train,,,ba_ha_t1_mean,27.28
-holdout_blocked,,,ba_ha_t1_mean,25.87
-pilot,,,ba_ha_t1_mean,27.809
-national,,,trees_ha_t1_mean,685.16
-train,,,trees_ha_t1_mean,672.31
-holdout_blocked,,,trees_ha_t1_mean,711.69
-pilot,,,trees_ha_t1_mean,711.16
-national,,,growth_annual_mean,0.018611
-train,,,growth_annual_mean,0.018774
-holdout_blocked,,,growth_annual_mean,0.018275
-pilot,,,growth_annual_mean,0.019034
-national,,,n_at_risk,43929
-train,,,n_at_risk,29362
-holdout_blocked,,,n_at_risk,14567
-pilot,,,n_at_risk,5949
-national,,,n_died,9799
-train,,,n_died,6415
-holdout_blocked,,,n_died,3384
-pilot,,,n_died,1222
-national,,,mort_annual_pooled,0.05562
-train,,,mort_annual_pooled,0.053264
-holdout_blocked,,,mort_annual_pooled,0.060367
-pilot,,,mort_annual_pooled,0.04988
-national,,,reg_ha_interval_mean,86.1011
-train,,,reg_ha_interval_mean,86.2472
-holdout_blocked,,,reg_ha_interval_mean,85.7993
-pilot,,,reg_ha_interval_mean,89.418
-national,1,Acer,sites_present_t1,129
-national,2,Alnus glutinosa,sites_present_t1,138
-national,3,Betula,sites_present_t1,1158
-national,4,Fagus sylvatica,sites_present_t1,400
-national,5,Fraxinus excelsior,sites_present_t1,104
-national,6,Larix kaempferi,sites_present_t1,303
-national,7,Picea abies,sites_present_t1,188
-national,8,Pinus nigra,sites_present_t1,144
-national,9,Pinus sylvestris,sites_present_t1,1080
-national,10,Populus,sites_present_t1,61
-national,11,Prunus serotina,sites_present_t1,388
-national,12,Pseudotsuga menziesii,sites_present_t1,411
-national,13,Quercus robur/petraea,sites_present_t1,1250
-national,14,Quercus rubra,sites_present_t1,403
-national,15,other,sites_present_t1,365
-national,1,Acer,ba_sum,84.271
-national,2,Alnus glutinosa,ba_sum,156.348
-national,3,Betula,ba_sum,549.987
-national,4,Fagus sylvatica,ba_sum,479.278
-national,5,Fraxinus excelsior,ba_sum,174.014
-national,6,Larix kaempferi,ba_sum,335.207
-national,7,Picea abies,ba_sum,270.52
-national,8,Pinus nigra,ba_sum,413.72
-national,9,Pinus sylvestris,ba_sum,2183.877
-national,10,Populus,ba_sum,142.009
-national,11,Prunus serotina,ba_sum,59.509
-national,12,Pseudotsuga menziesii,ba_sum,541.9
-national,13,Quercus robur/petraea,ba_sum,1521.095
-national,14,Quercus rubra,ba_sum,362.297
-national,15,other,ba_sum,349.658
-national,1,Acer,n_at_risk,738
-national,2,Alnus glutinosa,n_at_risk,1036
-national,3,Betula,n_at_risk,6784
-national,4,Fagus sylvatica,n_at_risk,2281
-national,5,Fraxinus excelsior,n_at_risk,1003
-national,6,Larix kaempferi,n_at_risk,1895
-national,7,Picea abies,n_at_risk,1470
-national,8,Pinus nigra,n_at_risk,1666
-national,9,Pinus sylvestris,n_at_risk,11029
-national,10,Populus,n_at_risk,582
-national,11,Prunus serotina,n_at_risk,620
-national,12,Pseudotsuga menziesii,n_at_risk,2665
-national,13,Quercus robur/petraea,n_at_risk,7939
-national,14,Quercus rubra,n_at_risk,2365
-national,15,other,n_at_risk,1856
-national,1,Acer,n_died,155
-national,2,Alnus glutinosa,n_died,185
-national,3,Betula,n_died,1478
-national,4,Fagus sylvatica,n_died,223
-national,5,Fraxinus excelsior,n_died,276
-national,6,Larix kaempferi,n_died,529
-national,7,Picea abies,n_died,428
-national,8,Pinus nigra,n_died,360
-national,9,Pinus sylvestris,n_died,2430
-national,10,Populus,n_died,155
-national,11,Prunus serotina,n_died,251
-national,12,Pseudotsuga menziesii,n_died,761
-national,13,Quercus robur/petraea,n_died,1545
-national,14,Quercus rubra,n_died,563
-national,15,other,n_died,460
-national,1,Acer,reg_sum,5854.93
-national,2,Alnus glutinosa,reg_sum,3015.72
-national,3,Betula,reg_sum,33582.98
-national,4,Fagus sylvatica,reg_sum,8617.82
-national,5,Fraxinus excelsior,reg_sum,2976.73
-national,6,Larix kaempferi,reg_sum,18156.85
-national,7,Picea abies,reg_sum,6201.41
+national,,,obs_rows,24668
+train,,,obs_rows,16506
+holdout_blocked,,,obs_rows,8162
+pilot,,,obs_rows,4200
+national,,,cohorts,35500
+train,,,cohorts,23529
+holdout_blocked,,,cohorts,11971
+pilot,,,cohorts,6033
+national,,,virtual_trees_t0,170274
+train,,,virtual_trees_t0,111114
+holdout_blocked,,,virtual_trees_t0,59160
+pilot,,,virtual_trees_t0,28719
+national,,,tracked_trees,34963
+train,,,tracked_trees,23167
+holdout_blocked,,,tracked_trees,11796
+pilot,,,tracked_trees,5939
+national,,,ba_ha_t1_mean,26.57
+train,,,ba_ha_t1_mean,27.068
+holdout_blocked,,,ba_ha_t1_mean,25.564
+pilot,,,ba_ha_t1_mean,27.53
+national,,,trees_ha_t1_mean,655.68
+train,,,trees_ha_t1_mean,641.1
+holdout_blocked,,,trees_ha_t1_mean,685.17
+pilot,,,trees_ha_t1_mean,651.5
+national,,,growth_annual_mean,0.018108
+train,,,growth_annual_mean,0.018277
+holdout_blocked,,,growth_annual_mean,0.017769
+pilot,,,growth_annual_mean,0.018461
+national,,,n_at_risk,34963
+train,,,n_at_risk,23167
+holdout_blocked,,,n_at_risk,11796
+pilot,,,n_at_risk,5939
+national,,,n_died,7849
+train,,,n_died,5084
+holdout_blocked,,,n_died,2765
+pilot,,,n_died,1271
+national,,,mort_annual_pooled,0.050833
+train,,,mort_annual_pooled,0.047141
+holdout_blocked,,,mort_annual_pooled,0.058084
+pilot,,,mort_annual_pooled,0.047607
+national,,,reg_ha_interval_mean,69.2732
+train,,,reg_ha_interval_mean,69.6437
+holdout_blocked,,,reg_ha_interval_mean,68.524
+pilot,,,reg_ha_interval_mean,79.9642
+national,1,Acer,sites_present_t1,74
+national,2,Alnus glutinosa,sites_present_t1,86
+national,3,Betula,sites_present_t1,910
+national,4,Fagus sylvatica,sites_present_t1,310
+national,5,Fraxinus excelsior,sites_present_t1,60
+national,6,Larix kaempferi,sites_present_t1,262
+national,7,Picea abies,sites_present_t1,146
+national,8,Pinus nigra,sites_present_t1,130
+national,9,Pinus sylvestris,sites_present_t1,905
+national,10,Populus,sites_present_t1,44
+national,11,Pseudotsuga menziesii,sites_present_t1,344
+national,12,Quercus robur/petraea,sites_present_t1,921
+national,13,Quercus rubra,sites_present_t1,308
+national,14,Salix,sites_present_t1,30
+national,1,Acer,ba_sum,58.802
+national,2,Alnus glutinosa,ba_sum,100.31
+national,3,Betula,ba_sum,426.747
+national,4,Fagus sylvatica,ba_sum,400.789
+national,5,Fraxinus excelsior,ba_sum,100.332
+national,6,Larix kaempferi,ba_sum,292.441
+national,7,Picea abies,ba_sum,225.799
+national,8,Pinus nigra,ba_sum,384.578
+national,9,Pinus sylvestris,ba_sum,1902.277
+national,10,Populus,ba_sum,105.136
+national,11,Pseudotsuga menziesii,ba_sum,479.84
+national,12,Quercus robur/petraea,ba_sum,1067.4
+national,13,Quercus rubra,ba_sum,286.596
+national,14,Salix,ba_sum,52.168
+national,1,Acer,n_at_risk,522
+national,2,Alnus glutinosa,n_at_risk,708
+national,3,Betula,n_at_risk,5485
+national,4,Fagus sylvatica,n_at_risk,1929
+national,5,Fraxinus excelsior,n_at_risk,685
+national,6,Larix kaempferi,n_at_risk,1645
+national,7,Picea abies,n_at_risk,1256
+national,8,Pinus nigra,n_at_risk,1590
+national,9,Pinus sylvestris,n_at_risk,10018
+national,10,Populus,n_at_risk,508
+national,11,Pseudotsuga menziesii,n_at_risk,2315
+national,12,Quercus robur/petraea,n_at_risk,6079
+national,13,Quercus rubra,n_at_risk,1959
+national,14,Salix,n_at_risk,264
+national,1,Acer,n_died,126
+national,2,Alnus glutinosa,n_died,138
+national,3,Betula,n_died,1181
+national,4,Fagus sylvatica,n_died,198
+national,5,Fraxinus excelsior,n_died,196
+national,6,Larix kaempferi,n_died,437
+national,7,Picea abies,n_died,382
+national,8,Pinus nigra,n_died,355
+national,9,Pinus sylvestris,n_died,2241
+national,10,Populus,n_died,127
+national,11,Pseudotsuga menziesii,n_died,639
+national,12,Quercus robur/petraea,n_died,1245
+national,13,Quercus rubra,n_died,469
+national,14,Salix,n_died,115
+national,1,Acer,reg_sum,3998.38
+national,2,Alnus glutinosa,reg_sum,1627.45
+national,3,Betula,reg_sum,29716.43
+national,4,Fagus sylvatica,reg_sum,5904.83
+national,5,Fraxinus excelsior,reg_sum,1943.27
+national,6,Larix kaempferi,reg_sum,17504.43
+national,7,Picea abies,reg_sum,6009.68
 national,8,Pinus nigra,reg_sum,559.03
-national,9,Pinus sylvestris,reg_sum,15236.95
-national,10,Populus,reg_sum,180.88
-national,11,Prunus serotina,reg_sum,36182.53
-national,12,Pseudotsuga menziesii,reg_sum,15010.12
-national,13,Quercus robur/petraea,reg_sum,17758.24
-national,14,Quercus rubra,reg_sum,12147.44
-national,15,other,reg_sum,19279.07
+national,9,Pinus sylvestris,reg_sum,14047.69
+national,10,Populus,reg_sum,66.55
+national,11,Pseudotsuga menziesii,reg_sum,13765.94
+national,12,Quercus robur/petraea,reg_sum,13963.55
+national,13,Quercus rubra,reg_sum,10544.46
+national,14,Salix,reg_sum,2407.71

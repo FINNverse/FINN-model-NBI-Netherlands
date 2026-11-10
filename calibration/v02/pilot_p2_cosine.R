@@ -1,19 +1,14 @@
 #=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=
-## FINN-model-NBI-Netherlands | calibration/v02/pilot_p5_v2_countspace.R
+## FINN-model-NBI-Netherlands | calibration/v02/pilot_p2_cosine.R
 ##
-## WHAT   v0.2 pilot P5: P3 (pairs-v2, cosine, theta frozen, mortality bounds,
-##        harvest in mortality) with the recruitment likelihood in CIRCLE-COUNT
-##        space: finn(recruit_obs_weight = w) multiplies the predicted and the
-##        observed per-hectare recruitment by w before the negative binomial,
-##        w = the median forest area of an NBI circle (0.0314 ha, radius 10 m),
-##        so a target of 127 stems/ha from one tree on a 5 m circle becomes ~4
-##        counts instead of 127 (trap 7, the BWI stage-3 fix).
-## HYPOTHESIS the per-hectare NB on tiny circles over-weights the small plots
-##        and their huge per-ha values; in count space the likelihood is the
-##        sampling design's, and the recruitment ratio and the stem surplus
-##        improve without a collapsing theta.
-## RUN    Rscript calibration/v02/pilot_p5_v2_countspace.R   (repo root, ~12 min, one thread)
-## OUTPUT <DATA_DIR>/fits/v02-pilots/p5_v2_countspace/{model.pt, loss_history.csv}; a row in calibration/v02/pilot_table.csv
+## WHAT   v0.2 pilot P2: P1 (pairs-v2 baseline) with a COSINE learning-rate
+##        decay to lr/100 over the 400 epochs instead of the constant lr 0.01.
+##        Nothing else changes.
+## HYPOTHESIS (audit 10) the v0.1 parameters never settled (mean absolute change
+##        per snapshot stayed at the noise level, stem-count loss drifting up);
+##        a decaying lr settles reproducibly and should not cost holdout skill.
+## RUN    Rscript calibration/v02/pilot_p2_cosine.R   (repo root, ~12 min, one thread)
+## OUTPUT <DATA_DIR>/fits/v02-pilots/p2_cosine/{model.pt, loss_history.csv}; rows in calibration/v02/pilot_table.csv, pilot_strata.csv
 #=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=
 .libPaths(c(path.expand("~/R/lib-finn-0848b60"), .libPaths()))   # FINN 0.2.0, main commit 0848b60
 suppressPackageStartupMessages({ library(FINN); library(data.table); library(torch) })
@@ -22,12 +17,10 @@ torch_set_num_threads(1L)
 
 DATA_DIR <- file.path("..", "..", "FINN-zoo-data", "nbi")
 PARAMS <- list(
-  label = "p5_v2_countspace", prep_version = "pairs-v2", train_set = "pilot", holdout_set = "holdout_blocked",
-  patch_size_ha = pi * 20^2 / 1e4, n_patches = 1L, env_vars = c("tavg_c", "prec_mm", "harvest"),
-  recruits_dbh = 6.4, hidden = c(20L, 20L), dropout = 0.1, reg_K_init = 50, reg_floor = 1e-3,
-  mort_bounds = c(-3, 3), freeze_theta = TRUE,
-  recruit_obs_weight = pi * 10^2 / 1e4,   # 0.0314 ha: median NBI circle (10 m); per-ha recruitment x w = recruits counted on a median circle
-  epochs = 400L, batchsize = 100L, lr = 0.01, lr_scheduler = "cosine",
+  label = "p2_cosine", prep_version = "pairs-v2", train_set = "pilot", holdout_set = "holdout_blocked",
+  patch_size_ha = pi * 20^2 / 1e4, n_patches = 1L, env_vars = c("tavg_c", "prec_mm"),
+  recruits_dbh = 5.9, hidden = c(20L, 20L), dropout = 0.1, reg_K_init = 50, reg_floor = 1e-3,
+  epochs = 400L, batchsize = 100L, lr = 0.01, lr_scheduler = "cosine",   # THE change: cosine decay to lr/100 over the run
   weights = "auto", weight_scale = "auto",
   loss_family = c(dbh = "mse", ba = "mse", trees = "poisson", growth = "mse", mortality = "binomial", regeneration = "nbinom"),
   checkpoints = 10L, seed = 1L)
@@ -39,17 +32,13 @@ n_species <- nrow(fread(file.path(d, "species_dt.csv")))
 init_cohort <- makeInitCohorts(init[, .(siteID, patchID, species, dbh, trees, treeName)], Nspecies = n_species)
 
 env_formula <- ~ tavg_c + prec_mm
-mort_formula <- ~ tavg_c + prec_mm + harvest
 model <- finn(
   N_species = n_species, recruits_dbh = PARAMS$recruits_dbh, reg_floor = PARAMS$reg_floor,
-  recruit_obs_weight = PARAMS$recruit_obs_weight,
   competition_process  = createProcess(~0, FINN::competition, optimizeSpecies = TRUE),
   growth_process       = createProcess(env_formula, FINN::growth, hidden = PARAMS$hidden, dropout = PARAMS$dropout, optimizeSpecies = TRUE, optimizeEnv = TRUE),
-  mortality_process    = createProcess(mort_formula, FINN::mortality, hidden = PARAMS$hidden, dropout = PARAMS$dropout, optimizeSpecies = TRUE, optimizeEnv = TRUE,
-                                       lower = rep(PARAMS$mort_bounds[1], 3), upper = rep(PARAMS$mort_bounds[2], 3)),
+  mortality_process    = createProcess(env_formula, FINN::mortality, hidden = PARAMS$hidden, dropout = PARAMS$dropout, optimizeSpecies = TRUE, optimizeEnv = TRUE),
   regeneration_process = createProcess(env_formula, FINN::regeneration_saturation, hidden = PARAMS$hidden, dropout = PARAMS$dropout, optimizeSpecies = TRUE, optimizeEnv = TRUE,
                                        custom_parameters = list(reg_logK = rep(log(PARAMS$reg_K_init), n_species))))
-if (PARAMS$freeze_theta) model$par_theta_recruits_raw$requires_grad_(FALSE)
 ## torch >= 0.14 has the faster ignite Adam (FINN's default); the cluster's older torch falls back to optim_adam
 optimizer <- if (exists("optim_ignite_adam", envir = asNamespace("torch"))) torch::optim_ignite_adam else torch::optim_adam
 FINN.seed(PARAMS$seed); t0 <- Sys.time()
@@ -62,6 +51,6 @@ fit(model, env = env[, c("siteID", "year", PARAMS$env_vars), with = FALSE],
 mins <- as.numeric(difftime(Sys.time(), t0, units = "mins"))
 torch_save(model, file.path(FIT_DIR, "model.pt"))
 hist <- as.data.table(do.call(rbind, model$history)); hist[, epoch := .I]; fwrite(hist, file.path(FIT_DIR, "loss_history.csv"))
-row <- pilot_eval(model, file.path(DATA_DIR, "prepared", PARAMS$prep_version, PARAMS$holdout_set), n_species, PARAMS$patch_size_ha, PARAMS$label, PARAMS$env_vars)
-row[, `:=`(data = PARAMS$prep_version, epochs = PARAMS$epochs, fit_min = round(mins, 1), theta_min = round(min(as.numeric(as_array(model$par_theta_recruits))), 4))]
-append_pilot_row(row)
+res <- pilot_eval(model, file.path(DATA_DIR, "prepared", PARAMS$prep_version, PARAMS$holdout_set), n_species, PARAMS$patch_size_ha, PARAMS$label, PARAMS$env_vars)
+res$row[, `:=`(data = PARAMS$prep_version, epochs = PARAMS$epochs, fit_min = round(mins, 1), theta_min = round(min(as.numeric(as_array(model$par_theta_recruits))), 4))]
+append_pilot_row(res)

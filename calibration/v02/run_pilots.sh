@@ -6,7 +6,7 @@
 # Run from the repository root:  bash calibration/v02/run_pilots.sh [pilot names...]
 set -u
 LOGDIR="../../FINN-zoo-data/nbi/fits/v02-pilots"; mkdir -p "$LOGDIR"
-PILOTS=("$@"); if [ ${#PILOTS[@]} -eq 0 ]; then PILOTS=(p0_v1_reference p1_v2_data p2_v2_hygiene p3_v2_harvest p4_v2_linear p5_v2_countspace p6_v2_staged); fi
+PILOTS=("$@"); if [ ${#PILOTS[@]} -eq 0 ]; then PILOTS=(p1_baseline p2_cosine p3_theta_cap p4_pertree p5_harvest p7_combo p6_floor); fi
 for p in "${PILOTS[@]}"; do
   echo "==== $(date '+%F %T') start $p" | tee -a "$LOGDIR/chain.log"
   Rscript "calibration/v02/pilot_$p.R" > "$LOGDIR/$p.log" 2>&1

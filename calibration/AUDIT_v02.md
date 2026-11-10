@@ -195,16 +195,79 @@ site-level binomial loss is the unclamped `m`. For this model that means:
    `trees = "none"` (BA + dbh as the only state terms, the IFN-Spain choice) is a fallback
    if P1-P6 leave the stem surplus.
 
-## 22. Candidates tested as pilots (calibration/v02/pilot_*.R, 300 training sites, one thread,
-## scored on the full blocked holdout; table in calibration/v02/pilot_table.csv)
-| pilot | data | change against the previous | finding |
-|---|---|---|---|
-| P0 | pairs-v1 | v0.1 settings, 400 epochs | reference |
-| P1 | pairs-v2 | data only (shrubs out, recruits by start dbh, harvest column) | 2, 6 |
-| P2 | pairs-v2 | + cosine lr, theta frozen at 1, mortality bounds [-3, 3] | 7, 9, 10 |
-| P3 | pairs-v2 | + `harvest` in the mortality formula | 4, 20 |
-| P4 | pairs-v2 | P3 with linear env responses (hidden = NULL) | 9 (small, narrow data) |
-| P5 | pairs-v2 | P3 with the recruitment NB in circle-count space (w = 0.0314 ha) | 7, 13 |
-| P6 | pairs-v2 | P3 fitted in two stages (stand processes, then recruitment alone) | 9 |
+## 22. The species set S and the site rule (agreed rare-species rule, V02_BRIEF 05:40 UTC)
+No lumped "other" class and no shrubs in v0.2. S = the top-|S| taxa by national first-visit
+basal area (genus-level NBI codes as the NBI records them: Quercus robur/petraea, Betula,
+Acer, Populus, Salix; CD + OD = Pinus nigra); a pair is kept when species outside S (NBI
+group codes and the shrub group ST included) hold < x % of the FIRST-visit basal area; the
+end census is never used for the selection. Trade-off (`calibration/v02/species_subset_tradeoff.csv`;
+2,271 pairs before the rule; 15 holdout blocks; coverage = 5-95 % span of the kept pairs'
+tavg_c / prec_mm relative to all pairs; identifiability columns = the weakest species in S
+over the kept pairs: plots with the species at the first visit, trees at risk, holdout blocks
+with it, 5-95 % climate span of its plots relative to the overall span):
 
-Results and the v0.2 decision: section 23 (written after the pilots).
+| S | x % | pairs kept | share | train / holdout | holdout blocks (>= 10 sites) | tavg / prec coverage | BA share of S | min plots | min at risk | min holdout blocks | min span | species below thresholds |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 8 | 1 | 1,343 | 0.59 | 871 / 472 | 14 (10) | 0.95 / 1.00 | 0.84 | 115 | 1,391 | 8 | 0.79 | 0 |
+| 8 | 2 | 1,445 | 0.64 | 932 / 513 | 14 (10) | 0.95 / 1.00 | 0.84 | 121 | 1,461 | 8 | 0.80 | 0 |
+| 10 | 2 | 1,595 | 0.70 | 1,038 / 557 | 14 (10) | 0.97 / 1.00 | 0.90 | 22 | 340 | 4 | 0.62 | 1 |
+| 12 | 1 | 1,569 | 0.69 | 1,038 / 531 | 15 (10) | 0.98 / 1.00 | 0.93 | 35 | 441 | 5 | 0.54 | 0 |
+| 12 | 2 | 1,678 | 0.74 | 1,107 / 571 | 15 (10) | 0.98 / 1.00 | 0.93 | 37 | 442 | 6 | 0.54 | 0 |
+| 14 | 1 | 1,651 | 0.73 | 1,108 / 543 | 15 (10) | 0.99 / 1.00 | 0.95 | 33 | 252 | 5 | 0.61 | 0 |
+| **14** | **2** | **1,762** | **0.78** | **1,179 / 583** | **15 (10)** | **0.99 / 1.00** | **0.95** | **35** | **264** | **5** | **0.64** | **0** |
+| 14 | 3 | 1,836 | 0.81 | 1,228 / 608 | 15 (10) | 0.99 / 1.00 | 0.95 | 35 | 264 | 5 | 0.65 | 0 |
+| 14 | 5 | 1,917 | 0.84 | 1,279 / 638 | 15 (10) | 0.99 / 1.00 | 0.95 | 36 | 265 | 6 | 0.65 | 0 |
+| 16 | 2 | 1,798 | 0.79 | 1,209 / 589 | 15 (11) | 0.99 / 1.00 | 0.96 | 15 | 66 | 1 | 0.56 | 2 |
+| 18 | 2 | 1,881 | 0.83 | 1,264 / 617 | 15 (11) | 1.00 / 1.00 | 0.97 | 16 | 71 | 1 | 0.56 | 3 |
+| 20 | 2 | 1,910 | 0.84 | 1,283 / 627 | 15 (11) | 1.00 / 1.00 | 0.97 | 14 | 71 | 1 | 0.51 | 5 |
+| 24 | 2 | 1,951 | 0.86 | 1,314 / 637 | 15 (12) | 1.00 / 1.00 | 0.98 | 3 | 27 | 0 | 0.05 | 9 |
+
+(thresholds: >= 30 plots, >= 100 trees at risk, >= 3 holdout blocks, climate span >= 0.5 of
+the overall span; the full grid |S| = 6..24 x x = 1/2/3/5 % is in the CSV.)
+
+**Choice: |S| = 14, x = 2 %.** Reasons: (i) every species of S clears the coverage thresholds
+(weakest: Salix with 35 plots, 264 trees at risk, 7 holdout blocks, span 0.80-0.91; Acer with
+71 plots, 5 holdout blocks, span 0.64); the next two taxa in the ranking (rank 15-16) sit in
+ONE holdout block with 66 trees at risk, so |S| = 16 adds 36 pairs and two species the holdout
+cannot test; (ii) the 15 holdout blocks and 99-100 % of the climate span stay populated from
+x = 1 % on, so x is not a coverage question here; x = 1 % costs 111 pairs for no coverage gain,
+x = 3-5 % adds 74-155 pairs but lets up to 5 % of the start basal area be dropped silently
+(option (a)); 2 % is the smallest threshold whose cost is small (6 % of the pairs vs x = 3 %);
+(iii) S covers 95.1 % of the national first-visit basal area. Result: 1,762 of 2,271 pairs
+(77.6 %): the model is valid for stands where the 14 modelled taxa hold > 98 % of the basal
+area at the start of the interval; with one NBI plot per 100 ha that share of pairs is also
+the share of forest area. End-census out-of-S share on the kept pairs: < 1 % on 1,301 sites,
+1-5 % on 326, > 5 % on 135 (the strata of the validation). Dropped on the kept pairs: 619
+first-visit trees, 3,558 second-visit trees, 1,976 recruits (option (a)). The n (holdout
+blocks) and span thresholds are COVERAGE choices, not measured identifiability limits.
+
+Per-species identifiability of S (`species_identifiability.csv`): plots 35 (Salix) - 911
+(Pinus sylvestris); trees at risk 264 - 10,018; holdout blocks 5 (Acer) - 13; climate span
+0.64 - 1.00.
+
+Option (b) of the agreed rule (out-of-S trees as one fixed shade-only class) is NOT piloted:
+FINN's `createProcess(optimizeSpecies = FALSE)` freezes the species parameters of a whole
+process, not of one class, and nothing in the interface freezes one species row or masks its
+gradient; its parameters would still move through the shading term of the other species'
+losses. A per-species freeze is one of the general agent's FINN proposals; until it exists,
+option (a) at x = 2 % is used.
+
+## 23. Candidates tested as pilots (calibration/v02/pilot_*.R, 300 training sites, 400 epochs,
+## one thread, scored on the full blocked holdout of the pilot's data version, stratified by the
+## end-census out-of-S share; tables calibration/v02/pilot_table.csv and pilot_strata.csv)
+| pilot | data | the one change | finding |
+|---|---|---|---|
+| P0 | pairs-v1 | v0.1 settings (reference with "other") | - |
+| P1 | pairs-v2 | v0.1 settings = BASELINE of the new data | 22 |
+| P2 | pairs-v2 | + cosine lr decay | 10 |
+| P3 | pairs-v2 | + theta frozen at 1, K init 10 (observed level) | 7 |
+| P4 | pairs-v2 | + per-tree growth / mortality losses (tree_obs_dt) | 3, 13, 20 |
+| P5 | pairs-v2 | + `harvest` in the mortality formula | 4, 20 |
+| P7 | pairs-v2 | P2 + P3 + P5 together (presumed production shape) | - |
+| P6 | pairs-v2 | P7 + `mortality_floor = 1e-6`, `mortality_draw = "poisson"` (branch build) | 20b |
+
+P0 result (pairs-v1 holdout, 740 sites): species-level BA R2 0.86, stand BA R2 0.44 vs
+persistence 0.56, stand stems R2 0.51 vs 0.36, dBA R2 -0.36, dN R2 0.22, stem surplus
++64/ha, growth r 0.53, loss AUC 0.565, loss ratio 1.39, recruitment ratio 2.21, bare ground
+38.5 m2/ha after 300 yr (Fagus 57 %). Rows P1-P7 and the v0.2 decision follow in section 24
+when the pilots have run (laptop budget permitting, or the cluster via calibration/v02/CLUSTER.md).

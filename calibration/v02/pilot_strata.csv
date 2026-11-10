@@ -1,0 +1,2 @@
+bin,n_sites,ba_stand_r2,ba_persist_r2,ba_rmse_ha,ba_bias_ha,dn_bias_ha,reg_ratio,pilot
+all,740,0.439959060780341,0.564461729835555,8.33723916054374,-2.62971785562004,64.0813713071111,2.21461703292119,p0_v1_reference

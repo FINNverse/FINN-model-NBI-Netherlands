@@ -1,31 +1,35 @@
 #=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=
-## FINN-model-NBI-Netherlands | calibration/v02/pilot_p4_v2_linear.R
+## FINN-model-NBI-Netherlands | calibration/v02/pilot_p6_floor.R
 ##
-## WHAT   v0.2 pilot P4: P3 (pairs-v2, cosine, theta frozen, mortality bounds,
-##        harvest in mortality) with LINEAR environmental responses
-##        (hidden = NULL: one linear layer per process instead of the
-##        SELU network 20-20).
-## HYPOTHESIS the Dutch climate space is ~1.5 degC x 230 mm wide and the data
-##        hold 1,524 training sites: a 20-20 network per process has far more
-##        freedom than the gradient can identify and absorbs state-loss
-##        pressure (BWI: loss competition flipped weakly identified slopes).
-##        Linear responses should transfer at least as well to the blocked
-##        holdout and settle better.
-## RUN    Rscript calibration/v02/pilot_p4_v2_linear.R   (repo root, ~10 min, one thread)
-## OUTPUT <DATA_DIR>/fits/v02-pilots/p4_v2_linear/{model.pt, loss_history.csv}; a row in calibration/v02/pilot_table.csv
+## WHAT   v0.2 pilot P6, the FLOOR arm: P7 (cosine lr, theta frozen, K init 10,
+##        harvest in mortality) with FINN's floor on the simulated annual
+##        death-draw probability removed: createProcess(mortality_floor = 1e-6,
+##        mortality_draw = "poisson") on the mortality process. This argument
+##        exists only in the branch build zoo-v02-mortfloor (FINNverse/FINN#51,
+##        PR #52), installed in ~/R/lib-finn-zoo-v02, which this script puts
+##        FIRST in .libPaths(); every other pilot runs on ~/R/lib-finn-0848b60.
+## HYPOTHESIS (audit 20b) FINN 0848b60 clamps the death draw at >= 1 %/yr; the
+##        observed stem loss incl. felling is above that for every species in S
+##        on average, so the floor should bind only for big trees of
+##        low-mortality species on unharvested plots and in the free run (cohort
+##        residence <= ~100 yr). P6 - P7 measures how much of the stem surplus /
+##        the equilibrium BA that is.
+## RUN    Rscript calibration/v02/pilot_p6_floor.R   (repo root, ~12 min, one thread)
+## OUTPUT <DATA_DIR>/fits/v02-pilots/p6_floor/{model.pt, loss_history.csv}; rows in calibration/v02/pilot_table.csv, pilot_strata.csv
 #=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=
-.libPaths(c(path.expand("~/R/lib-finn-0848b60"), .libPaths()))   # FINN 0.2.0, main commit 0848b60
+.libPaths(c(path.expand("~/R/lib-finn-zoo-v02"), path.expand("~/R/lib-finn-0848b60"), .libPaths()))   # branch build zoo-v02-mortfloor FIRST (mortality_floor argument)
 suppressPackageStartupMessages({ library(FINN); library(data.table); library(torch) })
 source(file.path("calibration", "v02", "pilot_eval.R"))             # generic metric helpers only
 torch_set_num_threads(1L)
 
 DATA_DIR <- file.path("..", "..", "FINN-zoo-data", "nbi")
 PARAMS <- list(
-  label = "p4_v2_linear", prep_version = "pairs-v2", train_set = "pilot", holdout_set = "holdout_blocked",
-  patch_size_ha = pi * 20^2 / 1e4, n_patches = 1L, env_vars = c("tavg_c", "prec_mm", "harvest"),
-  recruits_dbh = 6.4, hidden = NULL, dropout = 0, reg_K_init = 50, reg_floor = 1e-3,   # hidden = NULL: linear env response
-  mort_bounds = c(-3, 3), freeze_theta = TRUE,
-  epochs = 400L, batchsize = 100L, lr = 0.01, lr_scheduler = "cosine",
+  label = "p6_floor", prep_version = "pairs-v2", train_set = "pilot", holdout_set = "holdout_blocked",
+  patch_size_ha = pi * 20^2 / 1e4, n_patches = 1L, env_vars = c("tavg_c", "prec_mm", "harvest"),   # P5: harvest in the mortality formula
+  recruits_dbh = 5.9, hidden = c(20L, 20L), dropout = 0.1, reg_K_init = 10, reg_floor = 1e-3,     # P3: K init at the observed level
+  freeze_theta = TRUE,                                                                             # P3: theta fixed at 1
+  mortality_floor = 1e-6, mortality_draw = "poisson",                                              # THE change against P7: no 1 %/yr floor on the death draw
+  epochs = 400L, batchsize = 100L, lr = 0.01, lr_scheduler = "cosine",                             # P2: cosine decay
   weights = "auto", weight_scale = "auto",
   loss_family = c(dbh = "mse", ba = "mse", trees = "poisson", growth = "mse", mortality = "binomial", regeneration = "nbinom"),
   checkpoints = 10L, seed = 1L)
@@ -36,19 +40,20 @@ obs <- fread(file.path(d, "obs_dt.csv")); env <- fread(file.path(d, "env_dt.csv"
 n_species <- nrow(fread(file.path(d, "species_dt.csv")))
 init_cohort <- makeInitCohorts(init[, .(siteID, patchID, species, dbh, trees, treeName)], Nspecies = n_species)
 
-env_formula <- ~ tavg_c + prec_mm
+stopifnot("mortality_floor" %in% names(formals(createProcess)))   # the branch build is loaded, not the standard library
+env_formula  <- ~ tavg_c + prec_mm
 mort_formula <- ~ tavg_c + prec_mm + harvest
 model <- finn(
   N_species = n_species, recruits_dbh = PARAMS$recruits_dbh, reg_floor = PARAMS$reg_floor,
   competition_process  = createProcess(~0, FINN::competition, optimizeSpecies = TRUE),
   growth_process       = createProcess(env_formula, FINN::growth, hidden = PARAMS$hidden, dropout = PARAMS$dropout, optimizeSpecies = TRUE, optimizeEnv = TRUE),
   mortality_process    = createProcess(mort_formula, FINN::mortality, hidden = PARAMS$hidden, dropout = PARAMS$dropout, optimizeSpecies = TRUE, optimizeEnv = TRUE,
-                                       lower = rep(PARAMS$mort_bounds[1], 3), upper = rep(PARAMS$mort_bounds[2], 3)),
+                                       mortality_floor = PARAMS$mortality_floor, mortality_draw = PARAMS$mortality_draw),
   regeneration_process = createProcess(env_formula, FINN::regeneration_saturation, hidden = PARAMS$hidden, dropout = PARAMS$dropout, optimizeSpecies = TRUE, optimizeEnv = TRUE,
                                        custom_parameters = list(reg_logK = rep(log(PARAMS$reg_K_init), n_species))))
-if (PARAMS$freeze_theta) model$par_theta_recruits_raw$requires_grad_(FALSE)
 ## torch >= 0.14 has the faster ignite Adam (FINN's default); the cluster's older torch falls back to optim_adam
 optimizer <- if (exists("optim_ignite_adam", envir = asNamespace("torch"))) torch::optim_ignite_adam else torch::optim_adam
+if (PARAMS$freeze_theta) model$par_theta_recruits_raw$requires_grad_(FALSE)   # theta stays at its init; the optimizer skips it
 FINN.seed(PARAMS$seed); t0 <- Sys.time()
 fit(model, env = env[, c("siteID", "year", PARAMS$env_vars), with = FALSE],
     data = obs[, .(siteID, year, species, ba, dbh, trees, growth, growth_n, mort, n_at_risk, n_died, reg, period_length)], init_cohort = init_cohort,
@@ -59,6 +64,6 @@ fit(model, env = env[, c("siteID", "year", PARAMS$env_vars), with = FALSE],
 mins <- as.numeric(difftime(Sys.time(), t0, units = "mins"))
 torch_save(model, file.path(FIT_DIR, "model.pt"))
 hist <- as.data.table(do.call(rbind, model$history)); hist[, epoch := .I]; fwrite(hist, file.path(FIT_DIR, "loss_history.csv"))
-row <- pilot_eval(model, file.path(DATA_DIR, "prepared", PARAMS$prep_version, PARAMS$holdout_set), n_species, PARAMS$patch_size_ha, PARAMS$label, PARAMS$env_vars)
-row[, `:=`(data = PARAMS$prep_version, epochs = PARAMS$epochs, fit_min = round(mins, 1), theta_min = round(min(as.numeric(as_array(model$par_theta_recruits))), 4))]
-append_pilot_row(row)
+res <- pilot_eval(model, file.path(DATA_DIR, "prepared", PARAMS$prep_version, PARAMS$holdout_set), n_species, PARAMS$patch_size_ha, PARAMS$label, PARAMS$env_vars)
+res$row[, `:=`(data = PARAMS$prep_version, epochs = PARAMS$epochs, fit_min = round(mins, 1), theta_min = round(min(as.numeric(as_array(model$par_theta_recruits))), 4))]
+append_pilot_row(res)
