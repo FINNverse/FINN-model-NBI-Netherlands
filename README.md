@@ -5,12 +5,15 @@ A fitted [FINN](https://github.com/FINNverse/FINN) forest model calibrated to th
 packaged as a versioned simulation tool (R package `FINNmodelNBINetherlands`). The model card is in the
 [FINN-zoo](https://finnverse.github.io/FINN-zoo/models.html).
 
-**Current release: v0.2.0** (see NEWS.md; v0.1.0 remains available). The fitted parameters are a release
-asset of this repository (`parameters.pt`); `load_model()` downloads it once and checks its sha256.
+**Current release: v0.1.0** (see NEWS.md). This branch holds the v0.2 model described below (14 taxa,
+`harvest` dial), which is not released yet: its release waits for a confirmed licence of the NBI data, and
+this branch cannot load the v0.1.0 parameters (20 species). To use the released model, install the package
+at its release tag, as below. The fitted parameters are a release asset of this repository
+(`parameters.pt`); `load_model()` downloads it once and checks its sha256.
 
 ```r
 remotes::install_github("FINNverse/FINN@0848b60")                   # FINN 0.2.0, the version the model was fitted with
-remotes::install_github("FINNverse/FINN-model-NBI-Netherlands@v0.2.0")
+remotes::install_github("FINNverse/FINN-model-NBI-Netherlands@v0.1.0")
 library(FINNmodelNBINetherlands)
 torch::torch_set_num_threads(1L)   # pinned: the fit and the validation ran single-threaded
 m = load_model()          # downloads the released parameters once, checks sha256, rebuilds with the installed FINN
@@ -33,7 +36,7 @@ more than 98 % of the basal area at the start of the interval (77.6 % of the inv
 on 583 such pairs in spatially blocked holdout squares. One patch = 0.1257 ha (the 20 m NBI circle). The
 mortality process is fitted to total stem loss, natural death and felling together, so it describes the stem
 turnover of the managed Dutch forest rather than natural mortality alone; the harvest dial selects the regime.
-Holdout (v0.2.0): stand basal area R2 0.64 (persistence 0.62), stems R2 0.70 (0.43), stem-loss AUC 0.66; the
+Holdout (v0.2 model, not released): stand basal area R2 0.64 (persistence 0.62), stems R2 0.70 (0.43), stem-loss AUC 0.66; the
 free run is not a succession model for the Dutch pine-oak-birch forest (NEWS.md).
 
 This repository is a tool, not the code of a manuscript: it is versioned for

@@ -1,23 +1,22 @@
 {
   "variants": {
     "process": {
-      "tag": "v0.2.0",
+      "tag": "v0.1.0",
       "file": "parameters.pt",
-      "url": "https://github.com/FINNverse/FINN-model-NBI-Netherlands/releases/download/v0.2.0/parameters.pt",
-      "sha256": "29c8a4c21ca7918c07bc15a21ca0e3c315f933eddc4781f9038790719f797443",
+      "url": "https://github.com/FINNverse/FINN-model-NBI-Netherlands/releases/download/v0.1.0/parameters.pt",
+      "sha256": "19d24a826394ff918f7d9cdfb11f79f2cb6b032df90466ef388df2abd3043a99",
       "finn_commit": "0848b60",
       "finn_version": "0.2.0",
       "torch_version": "0.15.1",
       "patches": 1,
       "patch_size": 0.125663706143592,
-      "data_version": "pairs-v2",
+      "data_version": "pairs-v1",
       "train_set": "train",
-      "epochs": 600,
+      "epochs": 500,
       "weights": "auto",
       "weight_scale": "auto",
-      "covariates": ["tavg_c", "prec_mm", "harvest"],
-      "mortality_covariates": ["tavg_c", "prec_mm", "harvest"],
-      "optimizer": "optim_ignite_adam",
+      "threads": 1,
+      "sim_batchsize": 100,
       "fitted": "2026-11-10"
     }
   }

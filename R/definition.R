@@ -50,7 +50,8 @@ build_model = function(variant = "process", parameters, version = c("auto", "v0.
   n_species = as.integer(dim(parameters[["par_growth_unconstrained"]])[1])
   if (!identical(n_species, nrow(species_table())))
     stop("parameters.pt holds ", n_species, " species, species.csv lists ", nrow(species_table()),
-         " (another release of the package?)", call. = FALSE)
+         ". The released v0.1.0 parameters (20 species) belong to the code at the v0.1.0 tag; install it with ",
+         "remotes::install_github(\"FINNverse/FINN-model-NBI-Netherlands@v0.1.0\").", call. = FALSE)
   mort_width = as.integer(dim(parameters[["nn_mortality.0.weight"]])[2])   # intercept + covariates of the mortality network
   if (!mort_width %in% c(3L, 4L)) stop("unexpected mortality network input width ", mort_width, call. = FALSE)
   env_vars  = c("tavg_c", "prec_mm")
