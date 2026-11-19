@@ -133,11 +133,11 @@ as.data.table(sim_h$wide$site)[year == 50 & trees > 0]
   simulated at the floor, which the fit did not see. With the stem-loss target
   of this model (turnover incl. felling, 10 % per year on average) the floor
   rarely binds.
-- The weights are released as GitHub release assets of this repository: the
+- The weights are released as a GitHub release asset of this repository: the
   name-matched parameter dump `parameters.pt` (a named list of tensors, env
   networks and env standardisation included) that `load_model()` downloads,
   checks against the sha256 in `model_info()` and copies into a freshly built
-  model, and the whole fitted module `model.pt` for `torch::torch_load()`.
-  The calibration script asserts that the rebuilt model reproduces the fitted
+  model. The whole saved model object is not published: it contained
+  training data. The calibration script asserts that the rebuilt model reproduces the fitted
   one bit for bit. The fit used `weights = "auto"` (baseline-scaled losses, no
   numeric weight vector, so `weight_scale` is moot).

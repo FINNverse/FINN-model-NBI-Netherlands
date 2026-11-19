@@ -5,8 +5,8 @@ A fitted [FINN](https://github.com/FINNverse/FINN) forest model calibrated to th
 packaged as a versioned simulation tool (R package `FINNmodelNBINetherlands`). The model card is in the
 [FINN-zoo](https://finnverse.github.io/FINN-zoo/models.html).
 
-**Current release: v0.2.0** (see NEWS.md; v0.1.0 remains available). The fitted parameters are release
-assets of this repository; `load_model()` downloads them once and checks their sha256.
+**Current release: v0.2.0** (see NEWS.md; v0.1.0 remains available). The fitted parameters are a release
+asset of this repository (`parameters.pt`); `load_model()` downloads it once and checks its sha256.
 
 ```r
 remotes::install_github("FINNverse/FINN@0848b60")                   # FINN 0.2.0, the version the model was fitted with

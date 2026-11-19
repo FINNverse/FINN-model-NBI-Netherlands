@@ -4,6 +4,11 @@ Second fitted release (tag `v0.2.0`), variant `process`. Every change against
 0.1.0, with its reason (audit `calibration/AUDIT_v02.md`, pilots
 `calibration/v02/pilot_table.csv`):
 
+* **`model.pt` withdrawn** (2026-11-19): the whole saved model object contained
+  training data (environment tables and initial tree lists), so it was removed
+  from the v0.1.0 release and is not published with later releases.
+  `parameters.pt` is the published artefact; `load_model()` has always used it
+  alone.
 * **Species set instead of a lumped "other" class** (the rare-species rule agreed
   for the zoo). The model now has 14 taxa (Pinus sylvestris, Quercus
   robur/petraea, Betula, Pseudotsuga menziesii, Fagus sylvatica, Pinus nigra,
@@ -61,10 +66,9 @@ Second fitted release (tag `v0.2.0`), variant `process`. Every change against
 * Fit: `calibration/v02/fit.R`, 600 epochs, 0.90 h on one laptop core (5.4
   s/epoch), FINN 0.2.0 (main 0848b60), torch 0.15.1, `weights = "auto"`
   (baseline-scaled losses; no numeric vector, so `weight_scale` is moot).
-* Release assets (GitHub release `v0.2.0`): `parameters.pt` (named list of 34
+* Release asset (GitHub release `v0.2.0`): `parameters.pt` (named list of 34
   tensors incl. env networks, env standardisation and settings; sha256
-  `29c8a4c2…7443`) and `model.pt` (whole fitted module; sha256
-  `d82572df…bf42`), both in `inst/model/weights.json`. `build_model(parameters.pt)`
+  `29c8a4c2…7443`, in `inst/model/weights.json`). `build_model(parameters.pt)`
   reproduces the fitted model bit for bit on 200 sites. Pinned for simulation:
   one torch thread and `batchsize = 100`.
 * Holdout (583 blocked sites, `calibration/v02/report.md`): species-level basal
@@ -102,12 +106,10 @@ First fitted release (tag `v0.1.0`), variant `process`.
 * Fit: `calibration/fit.R`, 500 epochs, 1.45 h on one core, FINN 0.2.0 (main
   0848b60), torch 0.15.1, `weights = "auto"` (baseline-scaled losses; no
   numeric weight vector, so `weight_scale` is moot).
-* Release assets (GitHub release `v0.1.0`): `parameters.pt` (named list of 28
+* Release asset (GitHub release `v0.1.0`): `parameters.pt` (named list of 28
   tensors incl. env networks and env standardisation, what `load_model()`
-  rebuilds from) and `model.pt` (the whole fitted module for
-  `torch::torch_load()` under the same FINN version); sha256 of both in
-  `inst/model/weights.json`. `build_model(parameters.pt)` reproduces the fitted
-  model bit for bit. Pinned for simulation: one torch thread and
+  rebuilds from; sha256 `19d24a82…3a99`). `build_model(parameters.pt)`
+  reproduces the fitted model bit for bit. Pinned for simulation: one torch thread and
   `batchsize = 100`; a different batchsize changes the random draws but not the
   model.
 * Holdout (740 blocked sites, `calibration/report.md`): species-level basal

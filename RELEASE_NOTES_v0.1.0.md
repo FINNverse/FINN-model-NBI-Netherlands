@@ -19,7 +19,8 @@ Assets:
 | file | what | sha256 |
 |---|---|---|
 | parameters.pt | named list of 28 tensors (env networks and env standardisation included); `load_model()` rebuilds from it | 19d24a826394ff918f7d9cdfb11f79f2cb6b032df90466ef388df2abd3043a99 |
-| model.pt | the whole fitted module for `torch::torch_load()` under FINN 0848b60 | 60290b1b772268c1d9d9d138889b7953e82a7a0c956e34b3b280bd260c2ce25c |
+
+`model.pt` (the whole saved model object) was withdrawn from this release on 2026-11-19 because it contained training data (environment tables and initial tree lists); `parameters.pt` is the published artefact.
 
 Holdout skill (740 remeasurement pairs in 25-km blocks the fit never saw; the persistence of the first visit in brackets): species-level basal area R2 0.88, stems R2 0.61; stand basal area R2 0.50 (0.56), stand stems R2 0.14 (0.36; the model adds about 40 % stems); growth r 0.58; stem-loss AUC 0.56; recruitment R2 below zero (over-predicted 2.3x, mostly in "other").
 
